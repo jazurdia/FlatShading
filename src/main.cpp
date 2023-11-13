@@ -6,49 +6,63 @@
 
 // testing functions in gl.h
 
+Triangle verticesToTriangle(const std::vector<glm::vec3>& vertices) {
+    if (vertices.size() != 3) {
+        throw std::runtime_error("Invalid number of vertices for a triangle");
+    }
+    return Triangle{vertices[0], vertices[1], vertices[2]};
+}
+
+
+void render(std::vector<glm::vec3> vertices, Uniforms uniforms) {
+    // 1. Vertex Shader using the vertexShader function from gl.h
+    std::vector<glm::vec3> transformedVertices;
+    transformedVertices.reserve(vertices.size());
+
+    // Transform each vertex using the vertexShader function
+    for (const auto& vertex : vertices) {
+        transformedVertices.push_back(vertexShader(vertex, uniforms));
+    }
+
+    // 2. Primitive Assembly using the primitiveAssembly function from gl.h
+    std::vector<Triangle> triangles;
+    auto primitives = primitiveAssembly(transformedVertices);
+    for (const auto& primitive : primitives) {
+        triangles.push_back(verticesToTriangle(primitive));
+    }
+
+    // Rasterization function
+    std::vector<Fragment> fragments = rasterizeFunc(triangles);
+
+
+
+
+    // 4. Fragment Shader
+    // ... (resto de tu lógica de renderizado)
+}
+
+
 
 // Una función main que cree una ventana de SDL y inicie un main loop de renderizado
-int main(int arcg, char* argv[]) {
-    // Inicializar SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+int main(int argc, char* argv[]) {
+    bool initSdl = init_sdl();
+    if (!initSdl) {
         return 1;
     }
 
-    // Create window
-    window = SDL_CreateWindow("Flat Shading", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    std::vector<glm::vec3> vertices = {
+            {300.0f, 200.0f, 0.0f},
+            {400.0f, 400.0f, 0.0f},
+            {500.0f, 200.0f, 0.0f}
+    };
 
-    // Check if window was created
-    if (window == nullptr) {
-        std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return 1;
-    }
+    Uniforms uniforms{};
 
-    // Create renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    uniforms.model = glm::mat4(1);
+    uniforms.view = glm::mat4(1);
+    uniforms.projection = glm::mat4(1);
 
-    // load variables.
-    std::vector<glm::vec3> ver;
-    std::vector<Face> faces;
-
-    bool success = loadOBJ("nave_espacial.obj", ver, faces);
-
-    // check.
-    if (!success) {
-        std::cerr << "Error loading OBJ file!" << std::endl;
-        return 1;
-    }
-
-    bool running = true; // Loop flag
-
-
-    // Apply rotation
-    const auto pi = glm::pi<float>();
-    float angleZ = pi;
-    float angleX = 0;
-    float angleY = pi/2;
-
-    // While application is running
+    bool running = true;
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -57,52 +71,12 @@ int main(int arcg, char* argv[]) {
             }
         }
 
-        // clear
-        SDL_SetRenderDrawColor(renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        angleY += 0.015f;
+        render(vertices, uniforms);
 
-
-        for (const auto& face : faces) {
-            // glm::vec3 A = vertices[face.vertexIndices[0][0] - 1];
-            glm::vec3 A = ver[face.vertexIndices[0][0] - 1];
-            glm::vec3 B = ver[face.vertexIndices[1][0] - 1];
-            glm::vec3 C = ver[face.vertexIndices[2][0] - 1];
-
-
-            const float size = 50.0f;
-
-            A *= size;
-            B *= size;
-            C *= size;
-
-            A = glm::rotateZ(A, angleZ);
-            B = glm::rotateZ(B, angleZ);
-            C = glm::rotateZ(C, angleZ);
-
-            A = glm::rotateX(A, angleX / 4);
-            B = glm::rotateX(B, angleX / 4);
-            C = glm::rotateX(C, angleX / 4);
-            //
-            A = glm::rotateY(A, angleY);
-            B = glm::rotateY(B, angleY);
-            C = glm::rotateY(C, angleY);
-
-            // Ajustar a escala
-            A.x += 320.0f;
-            A.y += 240.0f;
-            B.x += 320.0f;
-            B.y += 240.0f;
-            C.x += 320.0f;
-            C.y += 240.0f;
-
-            drawTriangle({A, B, C});
-
-        }
-
-        // Update screen
-        SDL_RenderPresent(renderer);
+        renderBuffer(renderer);
     }
 
     SDL_DestroyRenderer(renderer);
@@ -110,4 +84,5 @@ int main(int arcg, char* argv[]) {
     SDL_Quit();
 
     return 0;
+
 }

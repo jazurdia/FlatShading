@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 
+
 // CONST
 // screen witdh and height
 const int SCREEN_WIDTH = 1000;
@@ -14,6 +15,24 @@ const int SCREEN_HEIGHT = 600;
 
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
+
+bool init_sdl() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "Error initializing SDL: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    window = SDL_CreateWindow("Software Renderer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == nullptr) {
+        std::cerr << "Error creating window: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer) {
+        std::cerr << "Error creating renderer: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    return true;
+}
 
 
 // define un struct color que contiene 3 floats
@@ -45,7 +64,9 @@ void drawPoint(Point p) {
     SDL_RenderDrawPoint(renderer, static_cast<int>(p.position.x), static_cast<int>(p.position.y)); // Utilizo solo x e y para SDL_RenderDrawPoint
 }
 
-// dont know why do we need this. I think it may be useful later.
+
+
+// Don't know why do we need this. I think it may be useful later.
 void pixel(int x, int y) {
     // Set the pixel at coordinates (x, y)
     SDL_SetRenderDrawColor(renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
@@ -148,3 +169,86 @@ bool loadOBJ(const std::string& path, std::vector<glm::vec3>& out_vertices, std:
     out_faces = faces;
     return true;
 }
+
+std::vector<glm::vec3> setupVertexArray(const std::vector<glm::vec3>& vertices, const std::vector<Face>& faces) {
+    std::vector<glm::vec3> vertexArray;
+    for (const auto& face : faces) { //for each face
+        for (const auto& vertexIndices : face.vertexIndices) { // for each vertex face
+            // Get the vertex position and normal from the input arrays using the indices from the face
+            vertexArray.push_back(vertices[vertexIndices[0] - 1]);
+        }
+    }
+    return vertexArray;
+}
+
+struct Fragment {
+    glm::ivec2 position; // x & y positions in screen space.
+    // Other interpolated attributes (e.g., color, texture coordinates, normals) can be added here
+
+    // color
+    Color color;
+
+};
+
+struct Uniforms { // Stores the parameters for the shader
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 projection;
+};
+
+// Vertex Shader function
+glm::vec3 vertexShader(const glm::vec3& vertex, const Uniforms& uniforms) {
+    // Apply transformations to the input vertex using the matrices from the uniforms
+    glm::vec4 transformedVertex = uniforms.projection * uniforms.view * uniforms.model * glm::vec4(vertex, 1.0f);
+
+    // Return the transformed vertex as a vec3
+    return glm::vec3(transformedVertex);
+}
+
+// Primitive Assembly function
+std::vector<std::vector<glm::vec3>> primitiveAssembly(const std::vector<glm::vec3>& transformedVertices) {
+    // Group your vertices in groups of 3
+    std::vector<std::vector<glm::vec3>> primitives;
+    for (int i = 0; i < transformedVertices.size(); i += 3) {
+        primitives.push_back({transformedVertices[i], transformedVertices[i + 1], transformedVertices[i + 2]});
+    }
+    // Return your assembled vertices
+    return primitives;
+}
+
+// Función para convertir un triángulo en fragmentos
+std::vector<Fragment> convertTriangleToFragment(const Triangle& triangle) {
+    std::vector<Fragment> triangleFragments;
+    // Aquí va la lógica de conversión
+    // Por ejemplo, simplemente convierte los vértices del triángulo en fragmentos
+    triangleFragments.push_back({{static_cast<int>(triangle.a.x), static_cast<int>(triangle.a.y)}});
+    triangleFragments.push_back({{static_cast<int>(triangle.b.x), static_cast<int>(triangle.b.y)}});
+    triangleFragments.push_back({{static_cast<int>(triangle.c.x), static_cast<int>(triangle.c.y)}});
+    return triangleFragments;
+}
+
+// Función rediseñada de rasterización
+std::vector<Fragment> rasterizeFunc(const std::vector<Triangle>& triangles) {
+    std::vector<Fragment> fragments;
+
+    for (const Triangle& triangle : triangles) {
+        std::vector<Fragment> triangleFragments = convertTriangleToFragment(triangle);
+        fragments.insert(fragments.end(), triangleFragments.begin(), triangleFragments.end());
+    }
+
+    return fragments;
+}
+
+// Fragment Shader Color function. I should be paying attention to this later.
+Color fragmentShader(const Fragment& fragment) {
+    // Example: Assign a constant color to each fragment
+    Color fragColor(255, 0, 0, 255); // Red color with full opacity
+
+    // You can modify this function to implement more complex shading
+    // based on the fragment's attributes (e.g., depth, interpolated normals, texture coordinates, etc.)
+
+    return fragColor;
+}
+
+
+

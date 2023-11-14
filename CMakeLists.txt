@@ -15,6 +15,14 @@ find_package(glm CONFIG REQUIRED)
 add_executable(FlatShading
         src/main.cpp
         src/gl.h
+        src/Fragment.h
+        src/Vertex.h
+        src/Uniforms.h
+        src/Face.h
+        src/Shaders.h
+        src/triangle.h
+        src/Matrices.h
+        src/Camera.h
 )
 
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2 glm::glm)

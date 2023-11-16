@@ -11,6 +11,7 @@ glm::mat4 createModelMatrix() {
     return translate * scale * rotation;
 }
 
+/**
 glm::mat4 createViewMatrix() {
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -18,4 +19,26 @@ glm::mat4 createViewMatrix() {
 
     return glm::lookAt(cameraPosition, targetPosition, upVector);
 }
+ **/
+
+
+// creates a perspective projection matrix
+glm::mat4 createProjectionMatrix() {
+    float fovInDegrees = 45.0f;
+    float aspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
+    float nearClip = 0.1f;
+    float farClip = 100.0f;
+    return glm::perspective(glm::radians(fovInDegrees), aspectRatio, nearClip, farClip);
+}
+
+glm::mat4 createViewportMatrix() {
+    glm::mat4 viewport = glm::mat4(1.0f);
+    // Scale
+    viewport = glm::scale(viewport, glm::vec3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.5f));
+    // Translate
+    viewport = glm::translate(viewport, glm::vec3(1.0f, 1.0f, 0.5f));
+    return viewport;
+}
+
+
 

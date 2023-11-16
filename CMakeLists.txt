@@ -23,6 +23,8 @@ add_executable(FlatShading
         src/triangle.h
         src/Matrices.h
         src/Camera.h
+        src/loadObject.h
+        src/bmpwriter.h
 )
 
 target_link_libraries(${PROJECT_NAME} SDL2main SDL2 glm::glm)

@@ -1,12 +1,18 @@
+#pragma once
 #include "SDL.h"
 #include "Color.h"
-#include "Face.h"
+#include "Fragment.h"
 
-// Constants
-SDL_Window* window = nullptr;
-SDL_Renderer* renderer = nullptr;
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+// globals
+
+SDL_Window* window;
+SDL_Renderer* renderer;
+
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 1000;
+
+std::array<std::array<float, SCREEN_WIDTH>, SCREEN_HEIGHT> zbuffer;
+std::array<std::array<float, SCREEN_WIDTH>, SCREEN_HEIGHT> zbufferToPrint;
 
 Color currentColor = {255, 255, 255, 255}; // Initially set to white
 Color clearColor = {0, 0, 0, 255}; // Initially set to black
@@ -18,7 +24,32 @@ void initSDL() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 }
 
-std::vector<glm::vec3> vertices;
-std::vector<Face> faces;
+void setColor(const Color& color) {
+    currentColor = color;
+}
 
 
+// Function to clear the framebuffer with the clearColor
+void clear() {
+    SDL_SetRenderDrawColor(renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    SDL_RenderClear(renderer);
+
+    // reset the zbuffer
+    for (auto &row : zbuffer) {
+        std::fill(row.begin(), row.end(), 99999.0f);
+    }
+}
+
+
+// Function to set a specific pixel in the framebuffer to the currentColor
+void point(Fragment f) {
+    if (f.position.z < zbuffer[f.position.y][f.position.x]) {
+        SDL_SetRenderDrawColor(renderer, f.color.r, f.color.g, f.color.b, f.color.a);
+        SDL_RenderDrawPoint(renderer, f.position.x, f.position.y);
+        zbuffer[f.position.y][f.position.x] = f.position.z;
+        zbufferToPrint[f.position.y][f.position.x] = f.position.z;
+        // std::cout << zbuffer[f.position.y][f.position.x] << std::endl;
+    }
+}
+
+// setupVertexFromObject

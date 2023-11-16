@@ -9,3 +9,8 @@ struct Fragment {
     Color color;
     float intensity;
 };
+
+Fragment fragmentShaderFragment(Fragment fragment) {
+    fragment.color = fragment.color * fragment.intensity;
+    return fragment;
+}

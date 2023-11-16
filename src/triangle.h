@@ -1,9 +1,5 @@
 #pragma once
-
-#include <glm/vec3.hpp>
-#include <glm/geometric.hpp>
 #include "gl.h"
-#include "Fragment.h"
 #include "Vertex.h"
 
 glm::vec3 lightPos = glm::vec3(150.0f, 150.0f, 150.0f);

@@ -85,9 +85,9 @@ int main (int argc, char** argv){
         }
 
         // camera
-        camera.cameraPosition = glm::vec3(0.0f, 0.0f, -12.0f);
+        camera.cameraPosition = glm::vec3(0.0f, 0.0f, -20.0f);
         camera.targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        camera.upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+        camera.upVector = glm::vec3(0.0f, -1.0f, 0.0f);
 
         // uniforms
         uniforms.model = createModelMatrix();

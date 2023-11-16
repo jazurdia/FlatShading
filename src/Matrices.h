@@ -11,16 +11,6 @@ glm::mat4 createModelMatrix() {
     return translate * scale * rotation;
 }
 
-/**
-glm::mat4 createViewMatrix() {
-    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    return glm::lookAt(cameraPosition, targetPosition, upVector);
-}
- **/
-
 
 // creates a perspective projection matrix
 glm::mat4 createProjectionMatrix() {

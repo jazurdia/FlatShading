@@ -21,7 +21,7 @@ std::vector<glm::vec3> setupVertexFromObject(const std::vector<glm::vec3>& verti
     for (const Face& face : faces) {
         for (const std::array<int, 3>& vertexIndices : face.vertexIndices) {
             glm::vec3 vertex = vertices[vertexIndices[0] - 1];
-            glm::vec3 color = glm::vec3(0.8f, 0.8f, 0.8f);
+            glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 
             vertexBufferObject.push_back(vertex);
             vertexBufferObject.push_back(color);
@@ -35,10 +35,9 @@ std::vector<glm::vec3> setupVertexFromObject(const std::vector<glm::vec3>& verti
 void render(const std::vector<glm::vec3> &vertices) {
     // 1. Vertex Shader
     std::vector<Vertex> transformedVertices;
-
-    for (int i = 0; i < vertices.size(); i+=2){
+    for (int i = 0; i < vertices.size(); i+=2) {
         glm::vec3 v = vertices[i];
-        glm::vec3 c = vertices[i+1];
+        glm::vec3 c = vertices[i + 1];
 
         Vertex vertex = {v, Color(c.x, c.y, c.z)};
 
@@ -76,6 +75,11 @@ int main (int argc, char** argv){
     std::vector<glm::vec3> vertexBufferObject = setupVertexFromObject(vertices, faces);
 
     bool running = true;
+
+    camera.cameraPosition = glm::vec3(-1.0f, 4.5f, -20.0f);
+    camera.targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    camera.upVector = glm::vec3(0.0f, -1.0f, 0.0f);
+
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -85,9 +89,6 @@ int main (int argc, char** argv){
         }
 
         // camera
-        camera.cameraPosition = glm::vec3(0.0f, 0.0f, -20.0f);
-        camera.targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        camera.upVector = glm::vec3(0.0f, -1.0f, 0.0f);
 
         // uniforms
         uniforms.model = createModelMatrix();
@@ -105,7 +106,7 @@ int main (int argc, char** argv){
         SDL_RenderPresent(renderer);
 
         // delay
-        //SDL_Delay(1000/16);
+        SDL_Delay(2);
     }
     // save the framebuffer to a BMP file
     writeBMP("out.bmp");

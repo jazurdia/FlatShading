@@ -5,7 +5,7 @@
 #include "Vertex.h"
 #include "Fragment.h"
 #include "triangle.h"
-
+/**
 std::vector<glm::vec3> vertexShader(const std::vector<glm::vec3>& vertices, Uniforms u){
     std::vector<glm::vec3> transformedVertices;
     for (int i = 0; i < vertices.size(); i+= 2){
@@ -18,6 +18,7 @@ std::vector<glm::vec3> vertexShader(const std::vector<glm::vec3>& vertices, Unif
     }
     return transformedVertices;
 }
+ **/
 
 // Vertices intro triangles.
 std::vector<std::vector<Vertex>> primitiveAssembly (

@@ -8,8 +8,8 @@
 SDL_Window* window;
 SDL_Renderer* renderer;
 
-const int SCREEN_WIDTH = 1000;
-const int SCREEN_HEIGHT = 1000;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 600;
 
 std::array<std::array<float, SCREEN_WIDTH>, SCREEN_HEIGHT> zbuffer;
 std::array<std::array<float, SCREEN_WIDTH>, SCREEN_HEIGHT> zbufferToPrint;

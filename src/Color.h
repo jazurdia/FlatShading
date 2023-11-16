@@ -38,8 +38,8 @@ struct Color {
     // Overload the * operator to scale colors by a factor
     Color operator*(float factor) const {
         return Color(
-                std::clamp(static_cast<Uint8>(r * factor), Uint8(0), Uint8(255)),
-                std::clamp(static_cast<Uint8>(g * factor), Uint8(0), Uint8(255)),
+                std::clamp(static_cast<Uint8>(r * factor), Uint8(0), Uint8(255)), // aqui esta el cambio
+                std::clamp(static_cast<Uint8>(g * factor), Uint8(0), Uint8(255)), // aqui esta el cambio
                 std::clamp(static_cast<Uint8>(b * factor), Uint8(0), Uint8(255)),
                 std::clamp(static_cast<Uint8>(a * factor), Uint8(0), Uint8(255))
         );
